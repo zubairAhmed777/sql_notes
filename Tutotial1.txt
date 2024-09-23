@@ -1,0 +1,134 @@
+--creating database
+Create database employee_details
+
+--using database 
+use employee_details
+-- creating table employees
+create table employees (
+	employeeid int primary key,
+	first_name varchar(20),
+	last_name varchar(20),
+	department varchar(20),
+	salary decimal(10,2),
+	hiredate date
+)
+
+-- Inserting data into table employees
+insert into employees values 
+(1, 'John', 'Doe', 'HR', 50000.00, '2020-01-15'),
+(2, 'Jane', 'Smith', 'Finance', 60000.00, '2019-03-23'),
+(3, 'Alice', 'Johnson', 'IT', 75000.00, '2021-07-10'),
+(4, 'Bob', 'Brown', 'Marketing', 55000.00, '2018-09-30'),
+(5, 'Charlie', 'Davis', 'IT', 70000.00, '2022-02-20');
+
+-- displaying all enties in employees table
+select * from employees;
+
+-- where clause to get employees whose salary is >= 60k
+select e.department, e.employeeid from employees as e
+where salary>=60000;
+
+select * from employees;
+-- using group by to sum salary of eah department
+select e.department, sum(e.salary) from employees as e group by department;
+
+-- using order by in ascending & descending
+select * from employees as e order by e.first_name, e.last_name, e.department desc;
+
+--distinct elements from a column
+select distinct(e.department) as [Department Name] from employees as e;
+
+--temporary table
+select * into #temp1 from employees;
+
+select * from #temp1
+
+--get the column names
+select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'employees'
+
+--insert data into table
+insert into employees (employeeid, first_name, last_name) values (6, 'zubair', 'ahmed');
+insert into #temp1 (employeeid, first_name, last_name) values (6, 'zubair', 'ahmed');
+
+select * from #temp1
+
+-- update table
+update #temp1 set department = 'IT' where employeeid = 6
+update #temp1 set hiredate = '2021-12-17' where employeeid = 6
+
+-- testing drop, delete & truncate
+select * into #temp3 from #temp1
+delete from #temp2 where employeeid = 4;
+select * from #temp2;
+
+--- delete without condito works as truncate, which will remove contents of table
+--- header of table will remain
+select * from #temp3
+delete from #temp3;
+select * from #temp3
+
+--- Truncate will remove all contents of table except header
+select * into #temp5 from #temp1
+select * from #temp5
+truncate table #temp5
+select * from #temp5
+
+--- drop will remove whole table 
+select * into #temp4 from #temp1
+select * from #temp4;
+drop table #temp4
+select * from #temp4;
+
+-- get top rows of table
+select top 4 * from #temp1;
+select top 2 t.employeeid, CONCAT(t.first_name, ' ', t.last_name) as [Full Name] from #temp1 as t;
+
+-- below two queryes to get 4th employee
+select top 1 * from (
+	select top 4 * from #temp1 order by employeeid asc ) as top4
+order by employeeid desc;
+
+select * from #temp1 order by employeeid offset 3 rows fetch next 1 rows only;
+
+-- Having clause
+select * from #temp1
+delete from #temp1 where employeeid = 6 and department is NULL;
+
+select t.department as department, sum(t.salary) as [salary sum]
+from #temp1 as t group by department having sum(t.salary) <= 60000
+
+select t.department as department, sum(t.salary) as [salary sum]
+from #temp1 as t group by department having sum(t.salary) <= 60000 order by [salary sum];
+
+-- difference bw having and where clause
+----** where --> will apply condition on individual rows
+-- *** having --> will apply condition after the group by
+select * from #temp1;
+
+select * from #temp1 where salary >= 55000;
+
+select department, sum(t.salary) as [salary sum] from #temp1 as t group by t.department;
+/* result of above query
+Finance	60000.00
+HR	50000.00
+IT	235000.00
+Marketing	55000.00
+*/
+select department, sum(t.salary) as [salary sum] from #temp1 as t where t.salary>= 55000 group by t.department;
+/* result of above query
+Finance	60000.00
+IT	235000.00
+Marketing	55000.00
+*/
+
+select t.department, sum(t.salary) as [salary sum] from #temp1 as t 
+group by t.department having sum(t.salary) > 60000;
+/* result of above query
+IT	235000.00
+*/
+
+-- Invalid syntax for below query correct order is #group by then having clause 
+select t.department, sum(t.salary) as [sal sum] from #temp1 as t 
+having sum(t.salary) >= 60000 group by t.department ;
+
+--Joins next tutorial
