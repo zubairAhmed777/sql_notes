@@ -1,0 +1,29 @@
+create table test(
+tid int,
+tname varchar(50),
+age tinyint,
+gender char(1)
+);
+
+select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'test'
+
+select * into test1 from test;
+
+select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'test1'
+
+alter table test1
+alter column tid int not null
+
+-- add primary constraint
+alter table test1 add primary key (tid)
+
+-- add unique constraint
+alter table test1 add unique (tname)
+
+--add auto increment to tid 1) copy data & drop existing column and add
+alter table test1 drop constraint PK__test1__DC105B0FFEC3CB15; -- to remove primary key constraint
+alter table test1 drop column tid; -- droping existing tid column
+alter table test1 add tid int identity(1, 1) -- adding tid column with auto increment feature
+
+insert into test1 (tname, age, gender) values('Test2', '20', 'f');
+select * from test1;
