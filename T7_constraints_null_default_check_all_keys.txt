@@ -1,0 +1,141 @@
+
+-- creating table with check constraint
+create table temp1(
+	tid int not null primary key,
+	tname varchar(20),
+	age tinyint check(age >= 18 and age <= 60)
+);
+
+-- altering table to add check constraint to tid
+alter table temp1
+add check(tid > 10)
+
+-- adding tid =10 will give error
+insert into temp1 values(11, 'temp1', 25)
+
+insert into temp1 values(11, 'temp1', 25)
+
+select * from temp1;
+
+-- adding unique constraint to tname
+alter table temp1 add unique (tname);
+
+-- if tname = temp1 is inserted it will throw an error as temp1 name is already existing
+insert into temp1 values(12, 'temp2', 26), (13, 'temp2', 27)
+select * from temp1;
+
+-- Default constraints
+create table dtemp1(
+	tid int default 0,
+	f_name varchar(50) default 'Noname',
+	l_name varchar(50),
+	age tinyint
+)
+select * from dtemp1;
+select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'dtemp1'
+
+insert into dtemp1 (l_name, age) values('l_name', 20);
+alter table dtemp1 add check(age>10)
+insert into dtemp1 (l_name) values('l_name1');
+-- add default constraint to existing table
+alter table dtemp1 add default 15 for age; 
+
+insert into dtemp1 (l_name) values('l_name2');
+
+---- PRIMARY KEY
+--Primary Key Constraint
+
+--Case 1 : When new is to be created
+create table test_pk_1 (
+eid int primary key,
+gender char(1),
+age tinyint,
+firstname varchar(256)
+)
+
+insert into test_pk_1 values(1,'M',23,'Mayank')
+
+select * from test_pk_1
+-- will give an error as sid 1 already exists
+insert into test_pk_1 values (1,'F',19,'Priya')
+
+-- primary key constraint won't take null values
+insert into test_pk_1 values (null,'M',25,'Raj')
+
+truncate table test_pk_1
+
+
+--Case 2 : Table Already exists
+-- below query will give a error as primary key is already applied to sid 
+alter table test_pk_1
+add primary key (age)
+
+drop table test_pk_1
+
+create table test_pk_1 (
+SID int not null unique,
+firstname nvarchar(256),
+age tinyint not null
+)
+
+-- we can make two columns as one primary key but the columns should have not null constraint
+alter table test_pk_1
+add primary key (sid,age)
+
+create table test_pk_2 (
+SID int,
+firstname nvarchar(256),
+age tinyint
+)
+
+alter table test_pk_2
+add primary key (sid,age)
+
+alter table test_pk_2 
+alter column sid int not null
+
+alter table test_pk_2 
+alter column age tinyint not null
+
+alter table test_pk_2
+add primary key (sid,age)
+-- will give an error as primary key already exist using sid + age
+alter table test_pk_2
+add primary key (sid)
+
+--- Foreign key
+create table test_primary_key(
+ID int primary key,
+name varchar(256)
+);
+
+insert into test_primary_key values(1, 'Mayank'), ('2', 'Raj'), (3, 'Jayanth')
+
+select * from test_primary_key;
+
+create table test_foreign_key(
+ID int foreign key references test_primary_key(ID),
+name varchar(256)
+);
+
+insert into test_foreign_key values(1, 'A')
+
+select * from test_foreign_key;
+
+insert into test_foreign_key values(NULL, 'B')
+
+-- below insertion will give error as ID '5' is not present in test_primary_key table
+insert into test_foreign_key values(5, 'E')
+
+--case 2 table already exists and need to add foreign key constraint
+
+create table text_foreign_key2(
+ID int,
+course varchar(256)
+);
+
+
+alter table text_foreign_key2
+add foreign key (id) references test_primary_key(ID)
+
+insert into text_foreign_key2 values (5, 'z');
